@@ -1,70 +1,91 @@
-#include "sort.h"
-/**
- * partition - function of the prototype
- * @array: array to take in
- * @start: start of array
- * @end: end of array
- * @size: full size of array
- * Return: position of pivot
- */
-int partition(int *array, int start, int end, int size)
-{
-	int pvot = array[end];
-	int f = start, k, temp;
 
-	for (k = start; k < end; k++)
+#include "sort.h"
+
+void swap_ints(int *c, int *d);
+int lomuto_partition(int *array, size_t size, int left, int right);
+void lomuto_sort(int *array, size_t size, int left, int right);
+void quick_sort(int *array, size_t size);
+
+/**
+ * swap_ints - function of the prototype
+ * @c: The first swap.
+ * @d: The second swap.
+ */
+void swap_ints(int *c, int *d)
+{
+	int temp;
+
+	temp = *c;
+	*c = *d;
+	*d = temp;
+}
+
+/**
+ * lomuto_partition - function of the prototype
+ * @array: The array of integers.
+ * @size: The size of the array.
+ * @left: The starting index of the subset to order.
+ * @right: The ending index of the subset to order.
+ *
+ * Return: The final partition index.
+ */
+int lomuto_partition(int *array, size_t size, int left, int right)
+{
+	int *pivot, up, down;
+
+	pivot = array + right;
+	for (up = down = left; down < right; down++)
 	{
-		if (array[k] <= pvot)
+		if (array[down] < *pivot)
 		{
-			if (f != k)
+			if (up < down)
 			{
-				temp = array[f];
-				array[f] = array[k];
-				array[k] = temp;
+				swap_ints(array + down, array + up);
 				print_array(array, size);
 			}
-			f++;
+			up++;
 		}
 	}
-	if (f != end)
+
+	if (array[up] > *pivot)
 	{
-		temp = array[f];
-		array[f] = array[end];
-		array[end] = temp;
+		swap_ints(array + up, pivot);
 		print_array(array, size);
 	}
-	printf("return f=%d\n", f);
-	return (f);
-}
-/**
- * quickSort - function of the proyotype
- * @array: array to sort through
- * @start: start of array or subarray
- * @end: end of array or subarray
- * @size: size of full array
- */
-void quickSort(int *array, int start, int end, int size)
-{
-	int pvot;
 
-	if (start < end)
+	return (up);
+}
+
+/**
+ * lomuto_sort - function of the prototype
+ * @array: An array of integers to sort.
+ * @size: The size of the array.
+ * @left: The starting index of the array partition to order.
+ * @right: The ending index of the array partition to order.
+ *
+ * Description: Uses the Lomuto partition scheme.
+ */
+void lomuto_sort(int *array, size_t size, int left, int right)
+{
+	int parts;
+
+	if (right - left > 0)
 	{
-		pvot = partition(array, start, end, size);
-		printf("first recursive, start [%d] to pivot-1[%d]\n", start, pvot - 1);
-		quickSort(array, start, pvot - 1, size);
-		printf("second recursive, pivot+1 [%d] to end [%d]\n", pvot + 1, end);
-		quickSort(array, pvot + 1, end, size);
+		parts = lomuto_partition(array, size, left, right);
+		lomuto_sort(array, size, left, parts - 1);
+		lomuto_sort(array, size, parts + 1, right);
 	}
 }
+
 /**
  * quick_sort - function of the prototype
- * @array: array to sort
- * @size: size of array
+ * @array: An array of integers.
+ * @size: The size of the array.
  */
 void quick_sort(int *array, size_t size)
 {
 	if (array == NULL || size < 2)
 		return;
-	quickSort(array, 0, size - 1, size);
-}
 
+	lomuto_sort(array, size, 0, size - 1);
+}
